@@ -9,7 +9,7 @@
     "./registry": "./.adonisjs/client/registry/index.ts"
   },
   "scripts": {
-    "start": "node bin/server.js",
+    "start": "node build/bin/server.js",
     "build": "node ace build",
     "dev": "node ace serve --hmr",
     "test": "node ace test",
@@ -67,6 +67,7 @@
     "@vinejs/vine": "^4.3.0",
     "better-sqlite3": "^12.6.2",
     "luxon": "^3.7.2",
+    "mysql2": "^3.19.1",
     "reflect-metadata": "^0.2.2"
   },
   "hotHook": {

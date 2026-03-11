@@ -1,3 +1,4 @@
+import env from '#start/env'
 import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/lucid'
 
@@ -5,12 +6,14 @@ const dbConfig = defineConfig({
   /**
    * Default connection used for all queries.
    */
-  connection: 'sqlite',
+  connection: 'mysql',
 
   connections: {
     /**
      * SQLite connection (default).
      */
+
+    /**
     sqlite: {
       client: 'better-sqlite3',
 
@@ -20,33 +23,34 @@ const dbConfig = defineConfig({
 
       /**
        * Required by Knex for SQLite defaults.
-       */
+       
       useNullAsDefault: true,
 
       migrations: {
         /**
          * Sort migration files naturally by filename.
-         */
+         
         naturalSort: true,
 
         /**
          * Paths containing migration files.
-         */
+         
         paths: ['database/migrations'],
       },
 
       schemaGeneration: {
         /**
          * Enable schema generation from Lucid models.
-         */
+         
         enabled: true,
 
         /**
          * Custom schema rules file paths.
-         */
+         
         rulesPaths: ['./database/schema_rules.js'],
       },
     },
+    **/
 
     /**
      * PostgreSQL connection.
@@ -72,21 +76,21 @@ const dbConfig = defineConfig({
      * MySQL / MariaDB connection.
      * Install package to switch: npm install mysql2
      */
-    // mysql: {
-    //   client: 'mysql2',
-    //   connection: {
-    //     host: env.get('DB_HOST'),
-    //     port: env.get('DB_PORT'),
-    //     user: env.get('DB_USER'),
-    //     password: env.get('DB_PASSWORD'),
-    //     database: env.get('DB_DATABASE'),
-    //   },
-    //   migrations: {
-    //     naturalSort: true,
-    //     paths: ['database/migrations'],
-    //   },
-    //   debug: app.inDev,
-    // },
+    mysql: {
+      client: 'mysql2',
+      connection: {
+        host: env.get('DB_HOST'),
+        port: Number(env.get('DB_PORT')),
+        user: env.get('DB_USER'),
+        password: env.get('DB_PASSWORD'),
+        database: env.get('DB_DATABASE'),
+      },
+      migrations: {
+        naturalSort: true,
+        paths: ['database/migrations'],
+      },
+      debug: app.inDev,
+    },
 
     /**
      * Microsoft SQL Server connection.
