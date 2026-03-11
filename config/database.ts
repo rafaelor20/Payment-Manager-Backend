@@ -6,14 +6,12 @@ const dbConfig = defineConfig({
   /**
    * Default connection used for all queries.
    */
-  connection: 'mysql',
+  connection: env.get('DB_CONNECTION'),
 
   connections: {
     /**
      * SQLite connection (default).
      */
-
-    /**
     sqlite: {
       client: 'better-sqlite3',
 
@@ -23,34 +21,33 @@ const dbConfig = defineConfig({
 
       /**
        * Required by Knex for SQLite defaults.
-       
+       */
       useNullAsDefault: true,
 
       migrations: {
         /**
          * Sort migration files naturally by filename.
-         
+         */
         naturalSort: true,
 
         /**
          * Paths containing migration files.
-         
+         */
         paths: ['database/migrations'],
       },
 
       schemaGeneration: {
         /**
          * Enable schema generation from Lucid models.
-         
+         */
         enabled: true,
 
         /**
          * Custom schema rules file paths.
-         
+         */
         rulesPaths: ['./database/schema_rules.js'],
       },
     },
-    **/
 
     /**
      * PostgreSQL connection.
