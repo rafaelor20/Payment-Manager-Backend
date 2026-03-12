@@ -90,14 +90,16 @@ This starter kit is designed to help you build production-ready APIs with Adonis
 
 ## 🚀 Quick Start
 
+
 ### From the Project Root
+
+#### Using develpment mode
 
 ```bash
 # Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
+# Use env.dev for running without docker 
 
 # Generate application key
 node ace generate:key
@@ -108,6 +110,30 @@ node ace migration:run
 # Run the development server with hot reload
 npm run dev
 ```
+
+#### Using production mode with docker compose
+```bash
+
+# create a .env file or use the command to copy .env.example to .env
+cp .env.example .env
+
+# start docker containers
+docker-compose up -d
+
+# When the containers are ready, generate application key within docker container
+docker compose exec app node ace generate:key
+
+# Run database migrations within docker container
+docker compose exec app node ace migration:run
+
+# stop docker containers
+docker-compose down
+
+# stop and remove all docker containers, images and volumes
+docker-compose down --rmi all --volumes
+
+```
+
 
 ### Useful Commands
 
@@ -126,6 +152,7 @@ npm run build
 
 # Start production server
 npm start
+
 ```
 
 Your API will be running at `http://localhost:3333`

@@ -15,6 +15,3 @@ COPY . .
 
 # Executa o build/compilação dos arquivos.
 RUN npm run build
-
-# Porta que o app é executado.
-EXPOSE 3333
