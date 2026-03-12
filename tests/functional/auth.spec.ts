@@ -12,6 +12,7 @@ test.group('Auth', (group) => {
       email: 'test@example.com',
       password: 'password',
       passwordConfirmation: 'password',
+      role: 'USER',
     })
 
     response.assertStatus(200)
@@ -26,6 +27,7 @@ test.group('Auth', (group) => {
       fullName: 'Test User',
       email: 'test@example.com',
       password: 'password',
+      role: 'ADMIN',
     })
 
     const response = await client.post('/api/v1/auth/login').json({
@@ -44,6 +46,7 @@ test.group('Auth', (group) => {
       fullName: 'Test User',
       email: 'test@example.com',
       password: 'password',
+      role: 'MANAGER',
     })
 
     const token = await User.accessTokens.create(user)
@@ -53,5 +56,6 @@ test.group('Auth', (group) => {
     response.assertStatus(200)
     assert.equal(response.body().data.fullName, 'Test User')
     assert.equal(response.body().data.email, 'test@example.com')
+    assert.equal(response.body().data.role, 'MANAGER')
   })
 })
