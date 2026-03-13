@@ -7,7 +7,9 @@ test.group('Users', (group) => {
     await User.query().delete()
   })
 
-  test('should return 403 when a non-admin user tries to create a user', async ({ client }) => {
+  test('should return 403 when a non-admin/non-manager user tries to create a user', async ({
+    client,
+  }) => {
     const user = await User.create({
       fullName: 'Normal User',
       email: 'user@example.com',
@@ -47,5 +49,102 @@ test.group('Users', (group) => {
     assert.equal(response.body().data.fullName, 'New User by Admin')
     assert.equal(response.body().data.email, 'newuserbyadmin@example.com')
     assert.equal(response.body().data.role, USER_ROLE.MANAGER)
+  })
+
+  test('should return 201 when a manager user creates a user', async ({ client, assert }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client.post('/api/v1/users').bearerToken(token.value!.release()).json({
+      fullName: 'New User by Manager',
+      email: 'newuserbymanager@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    response.assertStatus(201)
+    assert.equal(response.body().data.fullName, 'New User by Manager')
+    assert.equal(response.body().data.email, 'newuserbymanager@example.com')
+    assert.equal(response.body().data.role, USER_ROLE.USER)
+  })
+
+  test('should return 201 when a manager user creates a finance user', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client.post('/api/v1/users').bearerToken(token.value!.release()).json({
+      fullName: 'New Finance by Manager',
+      email: 'newfinancebymanager@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    response.assertStatus(201)
+    assert.equal(response.body().data.fullName, 'New Finance by Manager')
+    assert.equal(response.body().data.email, 'newfinancebymanager@example.com')
+    assert.equal(response.body().data.role, USER_ROLE.FINANCE)
+  })
+
+  test('should return 201 when a manager user creates another manager user', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client.post('/api/v1/users').bearerToken(token.value!.release()).json({
+      fullName: 'New Manager by Manager',
+      email: 'newmanagerbymanager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    response.assertStatus(201)
+    assert.equal(response.body().data.fullName, 'New Manager by Manager')
+    assert.equal(response.body().data.email, 'newmanagerbymanager@example.com')
+    assert.equal(response.body().data.role, USER_ROLE.MANAGER)
+  })
+
+  test('should return 422 when a manager user tries to create an admin user', async ({
+    client,
+  }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client.post('/api/v1/users').bearerToken(token.value!.release()).json({
+      fullName: 'New Admin by Manager',
+      email: 'newadminbymanager@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    response.assertStatus(403)
   })
 })

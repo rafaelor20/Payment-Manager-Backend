@@ -8,11 +8,18 @@ export default class UsersController {
   async store({ request, auth, response, serialize }: HttpContext) {
     const authenticatedUser = auth.getUserOrFail()
 
-    if (authenticatedUser.role !== USER_ROLE.ADMIN) {
+    if (
+      authenticatedUser.role !== (USER_ROLE.ADMIN as string) &&
+      authenticatedUser.role !== (USER_ROLE.MANAGER as string)
+    ) {
       return response.forbidden()
     }
 
     const payload = await request.validateUsing(createUserValidator)
+
+    if (authenticatedUser.role === USER_ROLE.MANAGER && payload.role === USER_ROLE.ADMIN) {
+      return response.forbidden('Managers cannot create Admin users.')
+    }
 
     const user = await User.create(payload)
 
