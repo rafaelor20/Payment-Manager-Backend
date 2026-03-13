@@ -18,6 +18,16 @@ export const signupValidator = vine.create({
 })
 
 /**
+ * Validator for admin to create a new user
+ */
+export const createUserValidator = vine.create({
+  fullName: vine.string().nullable(),
+  email: email().unique({ table: 'users', column: 'email' }),
+  password: password(),
+  role: vine.enum(['ADMIN', 'MANAGER', 'FINANCE', 'USER']).optional(),
+})
+
+/**
  * Validator to use before validating user credentials
  * during login
  */
