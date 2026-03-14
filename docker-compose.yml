@@ -32,6 +32,13 @@ services:
       timeout: 2s
       retries: 15
 
+  gateway:
+    image: matheusprotzen/gateways-mock
+    container_name: gateway
+    ports:
+      - 3001:3001
+      - 3002:3002
+
 volumes:
   db_data:
     driver: local
