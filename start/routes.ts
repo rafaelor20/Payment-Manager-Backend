@@ -50,5 +50,13 @@ router
       .prefix('products')
       .as('products')
       .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
+
+    router
+      .group(() => {
+        router.patch('/:id/status', [controllers.Gateways, 'updateStatus'])
+      })
+      .prefix('gateways')
+      .as('gateways')
+      .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
   })
   .prefix('/api/v1')
