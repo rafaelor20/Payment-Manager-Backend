@@ -29,6 +29,7 @@
     "#events/*": "./app/events/*.js",
     "#generated/*": "./.adonisjs/server/*.js",
     "#middleware/*": "./app/middleware/*.js",
+    "#resources/*": "./app/resources/*.js",
     "#transformers/*": "./app/transformers/*.js",
     "#validators/*": "./app/validators/*.js",
     "#providers/*": "./providers/*.js",
@@ -68,6 +69,7 @@
     "@tuyau/core": "^1.0.0",
     "@vinejs/vine": "^4.3.0",
     "better-sqlite3": "^12.6.2",
+    "cuid": "^3.0.0",
     "luxon": "^3.7.2",
     "mysql2": "^3.19.1",
     "reflect-metadata": "^0.2.2"
