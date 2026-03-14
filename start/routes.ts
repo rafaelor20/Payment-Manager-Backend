@@ -42,5 +42,13 @@ router
       .prefix('users')
       .as('users')
       .use(middleware.auth())
+
+    router
+      .group(() => {
+        router.post('/', [controllers.Products, 'store'])
+      })
+      .prefix('products')
+      .as('products')
+      .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
   })
   .prefix('/api/v1')
