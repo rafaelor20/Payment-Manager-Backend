@@ -3,7 +3,7 @@ import { test } from '@japa/runner'
 import { USER_ROLE } from '#database/schema_rules'
 import Product from '#models/product'
 
-test.group('Products', (group) => {
+test.group('Create a Product', (group) => {
   group.each.setup(async () => {
     await User.query().delete()
     await Product.query().delete()
@@ -18,6 +18,28 @@ test.group('Products', (group) => {
     })
 
     const token = await User.accessTokens.create(admin)
+
+    const response = await client
+      .post('/api/v1/products')
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'New Product',
+        amount: 1000,
+      })
+
+    response.assertStatus(201)
+    assert.equal(response.body().message, 'Product created successfully')
+  })
+
+  test('should return 201 when a manager user creates a product', async ({ client, assert }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
 
     const response = await client
       .post('/api/v1/products')
@@ -83,5 +105,45 @@ test.group('Products', (group) => {
     })
 
     response.assertStatus(401)
+  })
+})
+
+test.group('List Products', (group) => {
+  group.each.setup(async () => {
+    await User.query().delete()
+    await Product.query().delete()
+  })
+
+  test('should return 200 and a list of products without requiring authentication', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await User.create({
+      fullName: 'Test User',
+      email: 'test@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    await Product.create({
+      name: 'Product 1',
+      amount: 1000,
+    })
+
+    await Product.create({
+      name: 'Product 2',
+      amount: 2000,
+    })
+
+    const response = await client.get('/api/v1/products').bearerToken(token.value!.release())
+
+    response.assertStatus(200)
+    assert.equal(response.body().data.length, 2)
+    assert.equal(response.body().data[0].name, 'Product 2')
+    assert.equal(response.body().data[0].amount, 2000)
+    assert.equal(response.body().data[1].name, 'Product 1')
+    assert.equal(response.body().data[1].amount, 1000)
   })
 })

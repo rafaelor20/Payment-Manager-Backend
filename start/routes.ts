@@ -45,11 +45,13 @@ router
 
     router
       .group(() => {
-        router.post('/', [controllers.Products, 'store'])
+        router.get('/', [controllers.Products, 'index'])
+        router
+          .post('/', [controllers.Products, 'store'])
+          .use([middleware.auth(), middleware.role(['ADMIN', 'MANAGER', 'FINANCE'])])
       })
       .prefix('products')
       .as('products')
-      .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
 
     router
       .group(() => {
