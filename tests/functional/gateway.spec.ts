@@ -142,3 +142,97 @@ test.group('Gateways / Update Status', (group) => {
     })
   })
 })
+
+test.group('Gateways / Switch Priority', (group) => {
+  group.each.setup(async () => {
+    const teardown = await testUtils.db().truncate()
+    await testUtils.db().seed()
+    return teardown
+  })
+
+  test('it should allow ADMIN user to switch gateways priorities', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin_switch@test.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const gateway1 = await Gateway.create({ name: 'Test Gateway 1', isActive: 'true', priority: 1 })
+    const gateway2 = await Gateway.create({ name: 'Test Gateway 2', isActive: 'true', priority: 2 })
+
+    const prevPriority1 = gateway1.priority
+    const prevPriority2 = gateway2.priority
+
+    const targetPriority = 2
+
+    const response = await client
+      .patch(`/api/v1/gateways/switch-priority`)
+      .json({ gatewayId: gateway1.id, targetPriority })
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(200)
+    response.assertBodyContains({ message: 'Gateways priorities switched successfully' })
+
+    await gateway1.refresh()
+    await gateway2.refresh()
+
+    assert.equal(gateway1.priority, prevPriority2)
+    assert.equal(gateway2.priority, prevPriority1)
+  })
+
+  test('it should allow FINANCE user to switch gateways priorities', async ({ client, assert }) => {
+    const financeUser = await User.create({
+      fullName: 'Finance User',
+      email: 'finance_switch@test.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(financeUser)
+
+    const gateway1 = await Gateway.create({ name: 'Test Gateway 1', isActive: 'true', priority: 1 })
+    const gateway2 = await Gateway.create({ name: 'Test Gateway 2', isActive: 'true', priority: 2 })
+
+    const prevPriority1 = gateway1.priority
+    const prevPriority2 = gateway2.priority
+
+    const targetPriority = 2
+
+    const response = await client
+      .patch(`/api/v1/gateways/switch-priority`)
+      .json({ gatewayId: gateway1.id, targetPriority })
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(200)
+    response.assertBodyContains({ message: 'Gateways priorities switched successfully' })
+
+    await gateway1.refresh()
+    await gateway2.refresh()
+
+    assert.equal(gateway1.priority, prevPriority2)
+    assert.equal(gateway2.priority, prevPriority1)
+  })
+
+  test('it should deny USER role from switching gateways priorities', async ({ client }) => {
+    const user = await User.create({
+      fullName: 'Normal User',
+      email: 'user_switch@test.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(user)
+
+    const gateway1 = await Gateway.create({ name: 'Test Gateway 1', isActive: 'true', priority: 1 })
+
+    const response = await client
+      .patch(`/api/v1/gateways/switch-priority`)
+      .json({ gatewayId: gateway1.id, targetPriority: 2 })
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(403)
+  })
+})

@@ -5,3 +5,10 @@ export const updateGatewayStatusValidator = vine.compile(
     isActive: vine.string(),
   })
 )
+
+export const switchGatewayPriorityValidator = vine.compile(
+  vine.object({
+    gatewayId: vine.number(),
+    targetPriority: vine.number(),
+  })
+)

@@ -53,6 +53,7 @@ router
 
     router
       .group(() => {
+        router.patch('/switch-priority', [controllers.Gateways, 'switchPriority'])
         router.patch('/:id/status', [controllers.Gateways, 'updateStatus'])
       })
       .prefix('gateways')
