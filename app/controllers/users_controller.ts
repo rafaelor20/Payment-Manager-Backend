@@ -9,8 +9,8 @@ export default class UsersController {
     const authenticatedUser = auth.getUserOrFail()
 
     if (
-      authenticatedUser.role !== (USER_ROLE.ADMIN as string) &&
-      authenticatedUser.role !== (USER_ROLE.MANAGER as string)
+      authenticatedUser.role !== USER_ROLE.ADMIN &&
+      authenticatedUser.role !== USER_ROLE.MANAGER
     ) {
       return response.forbidden()
     }
@@ -25,5 +25,30 @@ export default class UsersController {
 
     response.status(201)
     return serialize(UserTransformer.transform(user))
+  }
+
+  async destroy({ auth, response, params }: HttpContext) {
+    const authenticatedUser = auth.getUserOrFail()
+
+    if (
+      authenticatedUser.role !== USER_ROLE.ADMIN &&
+      authenticatedUser.role !== USER_ROLE.MANAGER
+    ) {
+      return response.forbidden()
+    }
+
+    const user = await User.findOrFail(params.id)
+
+    if (authenticatedUser.role === USER_ROLE.MANAGER && user.role === USER_ROLE.ADMIN) {
+      return response.forbidden('Managers cannot delete Admin users.')
+    }
+
+    if (authenticatedUser.id === user.id) {
+      return response.forbidden('You cannot delete yourself.')
+    }
+
+    await user.delete()
+
+    return response.noContent()
   }
 }

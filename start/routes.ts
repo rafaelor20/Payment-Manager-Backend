@@ -37,6 +37,7 @@ router
     router
       .group(() => {
         router.post('/', [controllers.Users, 'store'])
+        router.delete('/:id', [controllers.Users, 'destroy'])
       })
       .prefix('users')
       .as('users')

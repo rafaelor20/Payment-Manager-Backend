@@ -147,4 +147,93 @@ test.group('Users', (group) => {
 
     response.assertStatus(403)
   })
+
+  test('should not allow a non-admin or non-manager user to delete users', async ({ client }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client
+      .delete(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(403)
+  })
+
+  test('should allow an admin to delete users', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const response = await client
+      .delete(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(204)
+  })
+
+  test('should allow a manager to delete non-admin users', async ({ client }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const response = await client
+      .delete(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(204)
+  })
+
+  test('should not allow a user to delete themselves', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const response = await client
+      .delete(`/api/v1/users/${admin.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(403)
+  })
 })
