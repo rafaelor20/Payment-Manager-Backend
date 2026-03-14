@@ -61,5 +61,13 @@ router
       .prefix('gateways')
       .as('gateways')
       .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
+
+    router
+      .group(() => {
+        router.get('/', [controllers.Clients, 'index'])
+      })
+      .prefix('clients')
+      .as('clients')
+      .use([middleware.auth(), middleware.role(['ADMIN', 'MANAGER'])])
   })
   .prefix('/api/v1')
