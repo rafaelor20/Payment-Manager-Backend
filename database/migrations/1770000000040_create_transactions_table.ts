@@ -4,7 +4,7 @@ export default class extends BaseSchema {
   protected tableName = 'transactions'
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id').notNullable()
+      table.increments('id').primary()
       table
         .integer('client_id')
         .unsigned()

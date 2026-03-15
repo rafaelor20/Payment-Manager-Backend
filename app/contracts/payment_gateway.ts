@@ -1,7 +1,11 @@
 export interface PaymentDetails {
   amount: number
-  currency: string
+  currency?: string
   description?: string
+  name?: string
+  email?: string
+  cardNumber?: string
+  cvv?: string
 }
 
 export interface PaymentResult {
