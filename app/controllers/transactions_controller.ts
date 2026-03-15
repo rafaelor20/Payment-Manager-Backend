@@ -40,45 +40,45 @@ export default class TransactionsController {
 
     const amount = await new ProductService().calculateTotalAmount(payload.products)
 
-    const gatewayList = await paymentManager.listGateways()
-    let gatewayResponse: { externalId: string; status: string } | null = null
-    let usedGatewayId: number | null = null
-
-    for (const gateway of gatewayList) {
-      if (gateway.isActive !== 'true') continue
-
-      try {
-        const driver = paymentManager.driver(gateway.name as any)
-        const result = await driver.processPayment({
-          amount,
-          name: payload.name,
-          email: payload.email,
-          cardNumber: payload.cardNumber,
-          cvv: payload.cvv,
-        })
-
-        if (result.success && result.transactionId) {
-          gatewayResponse = {
-            externalId: result.transactionId,
-            status: 'approved',
-          }
-          usedGatewayId = Number(gateway.id)
-          break
-        }
-      } catch (error) {
-        continue
-      }
+    let gatewayResponse: { externalId: string; status: string; usedGatewayId: number } = {
+      externalId: '',
+      status: 'failed',
+      usedGatewayId: 0,
     }
 
-    if (!gatewayResponse || !usedGatewayId) {
-      return response.badRequest({ message: 'Transaction failed. All gateways declined.' })
+    try {
+      const result = await paymentManager.processPaymentGateway({
+        amount,
+        name: payload.name,
+        email: payload.email,
+        cardNumber: payload.cardNumber,
+        cvv: payload.cvv,
+      })
+
+      if (result && 'externalId' in result && result.status === 'approved') {
+        gatewayResponse = {
+          externalId: String(result.externalId) || '',
+          status: 'approved',
+          usedGatewayId: Number(result.usedGatewayId) || 0,
+        }
+      } else {
+        return response.badRequest({
+          message: 'Payment processing failed',
+          error: 'Unknown error from payment manager',
+        })
+      }
+    } catch (error) {
+      return response.badRequest({
+        message: 'Payment processing failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
     }
 
     const transaction = await Transaction.create({
       clientId: client.id,
       cardLastNumbers: payload.cardNumber.slice(-4),
       externalId: gatewayResponse.externalId,
-      gatewayId: usedGatewayId,
+      gatewayId: gatewayResponse.usedGatewayId,
       status: gatewayResponse.status,
     })
 

@@ -1,17 +1,16 @@
 export interface PaymentDetails {
-  amount: number
-  currency?: string
-  description?: string
+  cvv: string
+  email: string
+  amount?: number
+  valor?: number
   name?: string
-  email?: string
+  nome?: string
   cardNumber?: string
-  cvv?: string
+  numeroCartao?: string
 }
 
 export interface PaymentResult {
-  success: boolean
-  transactionId?: string
-  errorMessage?: string
+  id: string
 }
 
 export interface PaymentGatewayContract {

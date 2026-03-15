@@ -60,12 +60,9 @@ export default class GatewayOneService implements PaymentGatewayContract {
       })
 
       const result = (await response.json()) as any
-      return { success: response.ok, transactionId: result.id }
+      return { id: result.id }
     } catch (error) {
-      return {
-        success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      }
+      throw error
     }
   }
 }

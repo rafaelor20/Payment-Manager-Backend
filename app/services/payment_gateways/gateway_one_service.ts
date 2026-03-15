@@ -20,7 +20,7 @@ export default class GatewayOneService implements PaymentGatewayContract {
 
     // Otherwise, perform the login request
     // Example using native fetch (or you can use axios/undici)
-    const response = await fetch(`${env.get('GATEWAY1_API_URL')}/auth/login`, {
+    const response = await fetch(`${env.get('GATEWAY_URL_1')}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -51,10 +51,12 @@ export default class GatewayOneService implements PaymentGatewayContract {
   }
 
   public async processPayment(details: PaymentDetails): Promise<PaymentResult> {
+    console.log('Details 1:', details)
     try {
       const token = await this.authenticate()
 
-      const response = await fetch(`${env.get('GATEWAY1_API_URL')}/payments`, {
+      console.log('Processing payment with Gateway 1:', details)
+      const response = await fetch(`${env.get('GATEWAY_URL_1')}/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,13 +65,11 @@ export default class GatewayOneService implements PaymentGatewayContract {
         body: JSON.stringify(details),
       })
 
+      console.log('Gateway 1 Response Status:', response)
       const result = (await response.json()) as any
-      return { success: response.ok, transactionId: result.id }
+      return { id: result.id }
     } catch (error) {
-      return {
-        success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      }
+      throw error
     }
   }
 }

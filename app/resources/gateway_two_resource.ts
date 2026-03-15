@@ -27,12 +27,9 @@ export default class GatewayTwoService implements PaymentGatewayContract {
       })
 
       const result = (await response.json()) as any
-      return { success: response.ok, transactionId: result.txn_id }
+      return { id: result.txn_id }
     } catch (error) {
-      return {
-        success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      }
+      throw error
     }
   }
 }

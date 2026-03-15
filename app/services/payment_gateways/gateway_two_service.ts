@@ -15,24 +15,24 @@ export default class GatewayTwoService implements PaymentGatewayContract {
   }
 
   public async processPayment(details: PaymentDetails): Promise<PaymentResult> {
+    console.log('Details 2:', details)
     try {
-      const response = await fetch(`${env.get('GATEWAY2_API_URL')}/transacoes`, {
+      console.log('Processing payment with Gateway 2:', details)
+      const response = await fetch(`${env.get('GATEWAY_URL_2')}/transacoes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Api-Token-A': this.tokenA, // Adjust header names per gateway specs
-          'X-Api-Token-B': this.tokenB,
+          'Gateway-Auth-Token': this.tokenA,
+          'Gateway-Auth-Secret': this.tokenB,
         },
         body: JSON.stringify(details),
       })
 
+      console.log('Gateway 2 Response Status:', response)
       const result = (await response.json()) as any
-      return { success: response.ok, transactionId: result.txn_id }
+      return { id: result.id }
     } catch (error) {
-      return {
-        success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      }
+      throw error
     }
   }
 }

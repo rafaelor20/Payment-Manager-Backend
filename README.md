@@ -126,6 +126,9 @@ docker compose exec app node ace generate:key
 # Run database migrations within docker container
 docker compose exec app node ace migration:run
 
+# Run the seeders
+docker compose exec app node ace db:seed
+
 # stop docker containers
 docker-compose down
 
