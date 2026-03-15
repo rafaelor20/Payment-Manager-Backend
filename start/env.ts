@@ -27,4 +27,14 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
+
+  // Gateway 1 (Requires login)
+  GATEWAY_URL_1: Env.schema.string(),
+  GATEWAY_1_EMAIL: Env.schema.string(),
+  GATEWAY_1_TOKEN: Env.schema.string(),
+
+  // Gateway 2 (Requires 2 tokens)
+  GATEWAY_URL_2: Env.schema.string(),
+  Gateway_2_Auth_Token: Env.schema.string(),
+  Gateway_2_Auth_Secret: Env.schema.string(),
 })
