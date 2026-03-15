@@ -6,4 +6,19 @@ export default class ClientsController {
     const clients = await Client.query().orderBy('id', 'desc')
     return response.ok({ data: clients })
   }
+
+  async show({ params, response }: HttpContext) {
+    const client = await Client.query()
+      .where('id', params.id)
+      .preload('transactions', (transactionsQuery) => {
+        transactionsQuery.preload('products')
+      })
+      .first()
+
+    if (!client) {
+      return response.notFound({ message: 'Client not found' })
+    }
+
+    return response.ok({ data: client })
+  }
 }

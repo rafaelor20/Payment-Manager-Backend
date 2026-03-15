@@ -65,6 +65,7 @@ router
     router
       .group(() => {
         router.get('/', [controllers.Clients, 'index'])
+        router.get('/:id', [controllers.Clients, 'show'])
       })
       .prefix('clients')
       .as('clients')
