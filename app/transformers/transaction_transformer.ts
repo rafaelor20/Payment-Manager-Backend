@@ -3,7 +3,7 @@ import { BaseTransformer } from '@adonisjs/core/transformers'
 
 export default class TransactionTransformer extends BaseTransformer<Transaction> {
   static create(transaction: Transaction) {
-    return new TransactionTransformer().transform(transaction)
+    return new TransactionTransformer(transaction).transform(transaction)
   }
 
   transform(transaction: Transaction) {

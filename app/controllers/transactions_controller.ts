@@ -5,23 +5,23 @@ import Product from '#models/product'
 import Transaction from '#models/transaction'
 import { createId } from '@paralleldrive/cuid2'
 import TransactionResource from '#resources/transaction_resource'
-import { DateTime } from 'luxon'
 
 export default class TransactionsController {
+  async index({ response }: HttpContext) {
+    const transactions = await Transaction.query().preload('products').preload('client')
+
+    return response.ok({ data: transactions })
+  }
+
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createTransactionValidator)
 
     const client = await Client.firstOrCreate({ email: payload.email }, { name: payload.name })
 
-    const products = await Product.query().whereIn(
+    await Product.query().whereIn(
       'id',
       payload.products.map((p) => p.productId)
     )
-
-    const amount = payload.products.reduce((total, p) => {
-      const product = products.find((item) => item.id === p.productId)
-      return total + (product?.amount || 0) * p.quantity
-    }, 0)
 
     // TODO: Implement gateway logic
     const gatewayResponse = {
@@ -37,12 +37,14 @@ export default class TransactionsController {
       status: gatewayResponse.status,
     })
 
-    const productsToAttach = new Map()
+    const productsToAttach: Record<number, any> = {}
+    const now = new Date()
     payload.products.forEach((p) => {
-      productsToAttach.set(p.productId, {
+      productsToAttach[p.productId] = {
         quantity: p.quantity,
-        created_at: DateTime.now(),
-      })
+        created_at: now,
+        updated_at: now,
+      }
     })
 
     await transaction.related('products').attach(productsToAttach)
