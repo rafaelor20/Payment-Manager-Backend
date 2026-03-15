@@ -54,4 +54,18 @@ export default class TransactionsController {
 
     return response.created({ data: new TransactionResource(transaction).toObject() })
   }
+
+  async show({ params, response }: HttpContext) {
+    const transaction = await Transaction.query()
+      .where('id', params.id)
+      .preload('products')
+      .preload('client')
+      .first()
+
+    if (!transaction) {
+      return response.notFound({ message: 'Transaction not found' })
+    }
+
+    return response.ok({ data: new TransactionResource(transaction).toObject() })
+  }
 }

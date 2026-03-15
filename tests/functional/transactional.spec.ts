@@ -270,3 +270,258 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
     response.assertStatus(403)
   })
 })
+
+test.group('ADMIN or FINANCE get a transaction by id', (group) => {
+  group.each.setup(async () => {
+    await User.query().delete()
+    await Product.query().delete()
+    await Client.query().delete()
+    await Transaction.query().delete()
+    await Gateway.query().delete()
+
+    await Gateway.create({
+      id: 1,
+      name: 'Test Gateway',
+      isActive: 'true',
+    })
+  })
+
+  test('should return 200 when an ADMIN user gets a client by id and his transactions', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const product1 = await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    const product2 = await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const transactionExample1 = {
+      name: 'Client 1',
+      email: client1.email,
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 1,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 2,
+        },
+      ],
+    }
+
+    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+
+    const response = await client
+      .get(`/api/v1/transactions/${transaction.body().data.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(200)
+    assert.equal(response.body().data.name, transactionExample1.name)
+    assert.equal(response.body().data.email, transactionExample1.email)
+    assert.equal(response.body().data.cardLastNumbers, '1111')
+    assert.equal(response.body().data.products.length, 2)
+    assert.equal(response.body().data.products[0].name, product1.name)
+    assert.equal(response.body().data.products[1].name, product2.name)
+  })
+
+  test('should return 200 when an FINANCE user gets a client by id and his transactions', async ({
+    client,
+    assert,
+  }) => {
+    const finance = await User.create({
+      fullName: 'Finance User',
+      email: 'finance@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(finance)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const product1 = await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    const product2 = await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const transactionExample1 = {
+      name: 'Client 1',
+      email: client1.email,
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 1,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 2,
+        },
+      ],
+    }
+
+    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+
+    const response = await client
+      .get(`/api/v1/transactions/${transaction.body().data.id}`)
+      .bearerToken(token.value!.release())
+
+    response.assertStatus(200)
+    assert.equal(response.body().data.name, transactionExample1.name)
+    assert.equal(response.body().data.email, transactionExample1.email)
+    assert.equal(response.body().data.cardLastNumbers, '1111')
+    assert.equal(response.body().data.products.length, 2)
+  })
+
+  test('should return 403 when an normal user gets a client by id and his transactions', async ({
+    client,
+    assert,
+  }) => {
+    const finance = await User.create({
+      fullName: 'Finance User',
+      email: 'finance@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(finance)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const product1 = await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    const product2 = await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const transactionExample1 = {
+      name: 'Client 1',
+      email: client1.email,
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 1,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 2,
+        },
+      ],
+    }
+
+    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+
+    const user = await User.create({
+      fullName: 'Regular User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const userToken = await User.accessTokens.create(user)
+
+    const response = await client
+      .get(`/api/v1/transactions/${transaction.body().data.id}`)
+      .bearerToken(userToken.value!.release())
+
+    response.assertStatus(403)
+  })
+
+  test('should return 401 when an unauthenticated user tries to get a transaction by id', async ({
+    client,
+  }) => {
+    const finance = await User.create({
+      fullName: 'Finance User',
+      email: 'finance@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(finance)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const product1 = await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    const product2 = await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const transactionExample1 = {
+      name: 'Client 1',
+      email: client1.email,
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 1,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 2,
+        },
+      ],
+    }
+
+    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+
+    const user = await User.create({
+      fullName: 'Regular User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const response = await client.get(`/api/v1/transactions/${transaction.body().data.id}`)
+
+    response.assertStatus(401)
+  })
+})

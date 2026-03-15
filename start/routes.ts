@@ -75,6 +75,9 @@ router
       .group(() => {
         router.post('/', [controllers.Transactions, 'store'])
         router
+          .get('/:id', [controllers.Transactions, 'show'])
+          .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
+        router
           .get('/', [controllers.Transactions, 'index'])
           .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
       })
