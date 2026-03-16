@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
-import Gateway from '../../app/models/gateway.ts'
+import Gateway from '#models/gateway'
 import { USER_ROLE } from '#database/schema_rules'
 import testUtils from '@adonisjs/core/services/test_utils'
 
@@ -160,8 +160,8 @@ test.group('Gateways / Switch Priority', (group) => {
 
     const token = await User.accessTokens.create(admin)
 
-    const gateway1 = await Gateway.create({ name: 'Test Gateway 1', isActive: 'true', priority: 1 })
-    const gateway2 = await Gateway.create({ name: 'Test Gateway 2', isActive: 'true', priority: 2 })
+    const gateway1 = await Gateway.findByOrFail('priority', 1)
+    const gateway2 = await Gateway.findByOrFail('priority', 2)
 
     const prevPriority1 = gateway1.priority
     const prevPriority2 = gateway2.priority
@@ -193,8 +193,8 @@ test.group('Gateways / Switch Priority', (group) => {
 
     const token = await User.accessTokens.create(financeUser)
 
-    const gateway1 = await Gateway.create({ name: 'Test Gateway 1', isActive: 'true', priority: 1 })
-    const gateway2 = await Gateway.create({ name: 'Test Gateway 2', isActive: 'true', priority: 2 })
+    const gateway1 = await Gateway.findByOrFail('priority', 1)
+    const gateway2 = await Gateway.findByOrFail('priority', 2)
 
     const prevPriority1 = gateway1.priority
     const prevPriority2 = gateway2.priority

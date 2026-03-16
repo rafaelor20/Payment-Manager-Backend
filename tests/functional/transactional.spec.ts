@@ -5,8 +5,23 @@ import Product from '#models/product'
 import Client from '#models/client'
 import Transaction from '#models/transaction'
 import Gateway from '#models/gateway'
+import paymentManager from '#services/payment_manager'
+import { gatewayResponseMock } from '../gateway_response_mock.js'
 
 test.group('Create a Transaction', (group) => {
+  let originalProcessPaymentGateway: any
+
+  group.setup(() => {
+    originalProcessPaymentGateway = paymentManager.processPaymentGateway
+    paymentManager.processPaymentGateway = async () => {
+      return gatewayResponseMock()
+    }
+  })
+
+  group.teardown(() => {
+    paymentManager.processPaymentGateway = originalProcessPaymentGateway
+  })
+
   group.each.setup(async () => {
     await User.query().delete()
     await Product.query().delete()
@@ -70,16 +85,31 @@ test.group('Create a Transaction', (group) => {
     }
 
     const response = await client.post('/api/v1/transactions').json(transactionExample)
+    const transaction = await Transaction.first()
 
     response.assertStatus(201)
     assert.equal(response.body().data.name, transactionExample.name)
     assert.equal(response.body().data.email, transactionExample.email)
     assert.equal(response.body().data.cardLastNumbers, '1111')
     assert.equal(response.body().data.products.length, 2)
+    assert.isTrue(transaction!.externalId.startsWith('12345-'))
   })
 })
 
 test.group('ADMIN or FINANCE user can get all transactions', (group) => {
+  let originalProcessPaymentGateway: any
+
+  group.setup(() => {
+    originalProcessPaymentGateway = paymentManager.processPaymentGateway
+    paymentManager.processPaymentGateway = async () => {
+      return gatewayResponseMock()
+    }
+  })
+
+  group.teardown(() => {
+    paymentManager.processPaymentGateway = originalProcessPaymentGateway
+  })
+
   group.each.setup(async () => {
     await User.query().delete()
     await Product.query().delete()
@@ -272,6 +302,19 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
 })
 
 test.group('ADMIN or FINANCE get a transaction by id', (group) => {
+  let originalProcessPaymentGateway: any
+
+  group.setup(() => {
+    originalProcessPaymentGateway = paymentManager.processPaymentGateway
+    paymentManager.processPaymentGateway = async () => {
+      return gatewayResponseMock()
+    }
+  })
+
+  group.teardown(() => {
+    paymentManager.processPaymentGateway = originalProcessPaymentGateway
+  })
+
   group.each.setup(async () => {
     await User.query().delete()
     await Product.query().delete()

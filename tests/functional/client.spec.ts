@@ -5,6 +5,8 @@ import { USER_ROLE } from '#database/schema_rules'
 import Client from '#models/client'
 import Gateway from '#models/gateway'
 import Transaction from '#models/transaction'
+import { gatewayResponseMock } from '../gateway_response_mock.js'
+import paymentManager from '#services/payment_manager'
 
 test.group('ADMIN or MANAGER get list of clients', (group) => {
   group.each.setup(async () => {
@@ -129,6 +131,19 @@ test.group('ADMIN or MANAGER get list of clients', (group) => {
 })
 
 test.group('ADMIN or MANAGER get a client by id and all his transactions', (group) => {
+  let originalProcessPaymentGateway: any
+
+  group.setup(() => {
+    originalProcessPaymentGateway = paymentManager.processPaymentGateway
+    paymentManager.processPaymentGateway = async () => {
+      return gatewayResponseMock()
+    }
+  })
+
+  group.teardown(() => {
+    paymentManager.processPaymentGateway = originalProcessPaymentGateway
+  })
+
   group.each.setup(async () => {
     await User.query().delete()
     await Client.query().delete()
