@@ -9,6 +9,8 @@ export default class TransactionResource extends BaseTransformer<Transaction> {
       name: this.resource.client.name,
       email: this.resource.client.email,
       cardLastNumbers: this.resource.cardLastNumbers,
+      externalId: this.resource.externalId,
+      gatewayId: this.resource.gatewayId,
       createdAt: this.resource.createdAt,
       updatedAt: this.resource.updatedAt,
       products: this.resource.products.map((p) => {

@@ -28,6 +28,9 @@ class PaymentManager {
   ) {
     const gatewayList = await this.listGateways()
 
+    // sort gateway list by priority
+    gatewayList.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
+
     let gatewayResponse: { externalId: string; status: string; usedGatewayId: number } = {
       externalId: '',
       status: 'failed',
