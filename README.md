@@ -1,18 +1,14 @@
 <div align="center">
 
-  <h1>API Starter Kit</h1>
+  <h1>Payment Manager Backend</h1>
 
   <p>
-    <strong>A batteries-included AdonisJS starter kit for building modern, type-safe APIs.</strong>
-  </p>
-
-  <p>
-    Built for developers who want a production-ready standalone API.
+    <strong>A backend template to practice developing backend APIs with AdonisJS for payment management</strong>
   </p>
 
   <br>
 
-<a href="#-whats-in-the-box">Features</a>
+<a href="#-Requirements">Requirements</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#-quick-start">Quick Start</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -25,19 +21,15 @@
 
 ---
 
-## ✨ What's in the Box
+## ✨ Requirements
 
-This starter kit is designed to help you build production-ready APIs with AdonisJS. It provides a solid foundation with authentication, type-safe routes, and everything you need to build modern APIs that work with any frontend framework.
+### For testing:
 
-### 🎯 Core Features
+  node version manager installed
 
-- **🔐 Dual Authentication** - API tokens (default) and session-based authentication pre-configured
-- **🔄 RESTful API** - Clean API structure with versioning (`/api/v1`)
-- **🏥 Health Check** - Built-in health check endpoint for monitoring
-- **✅ Form Validation** - Powered by VineJS with automatic error handling
-- **🛡️ Security First** - CORS, Shield middleware, and secure authentication
-- **🔒 Type Safety** - End-to-end TypeScript with Tuyau for type-safe API calls
-- **🌐 CORS Ready** - Pre-configured for cross-origin requests
+### For running as in production:
+
+  docker compose installed
 
 ### 🔧 Tech Stack
 
@@ -51,7 +43,7 @@ This starter kit is designed to help you build production-ready APIs with Adonis
   <tr>
     <td><strong>Database</strong></td>
     <td>
-      <a href="https://lucid.adonisjs.com">Lucid ORM</a> - SQL ORM with migrations (SQLite, PostgreSQL, MySQL, MSSQL)
+      <a href="https://lucid.adonisjs.com">Lucid ORM</a> - SQL ORM with migrations (SQLite for tests and dev mode, MySQL for production mode)
     </td>
   </tr>
   <tr>
@@ -93,23 +85,51 @@ This starter kit is designed to help you build production-ready APIs with Adonis
 
 ### From the Project Root
 
-#### Using develpment mode
+
+#### Install dependencies
 
 ```bash
-# Install dependencies
-npm install
+# download the node version
+nvm install 24
+# set in the terminal the node version
+nvm use 24
 
-# Use env.dev for running without docker 
+# Install dependencies
+npm i
+```
+
+#### Running tests
+
+
+
+```bash
+# To run the tests
+npm run test
+# (use env.test to modify the tests variables)
+```
+
+#### Using development mode
+
+```bash
+# Use env.dev to modify the development variables
 
 # Generate application key
-node ace generate:key
+npm run generate:dev
 
 # Run database migrations
-node ace migration:run
+npm run migrate:dev
+
+# Run the seeders
+npm run seed:dev
+
+# Run the gateway container
+docker compose up -d gateway
 
 # Run the development server with hot reload
 npm run dev
 ```
+
+Your API will be running at `http://localhost:3333`
 
 #### Using production mode with docker compose
 ```bash
@@ -137,12 +157,21 @@ docker-compose down --rmi all --volumes
 
 ```
 
+Your API will be running at `http://localhost:3333`
+
+### Available Endpoints
+[ROUTES.md](ROUTES.md)
+
+```bash
+# Check the routes
+node ace list:routes
+```
+
 
 ### Useful Commands
 
 ```bash
-# Run tests
-npm run test
+
 
 # Type check
 npm run typecheck
@@ -158,94 +187,10 @@ npm start
 
 ```
 
-Your API will be running at `http://localhost:3333`
+### To do
 
-### Available Endpoints
-
-- `POST /api/v1/auth/signup` - Create a new account
-- `POST /api/v1/auth/login` - Login and get access token
-- `POST /api/v1/auth/logout` - Logout (requires authentication)
-- `GET /api/v1/account/profile` - Get current user profile (requires authentication)
-
----
-
-## 📚 Learn More
-
-<table>
-  <tr>
-    <td>
-      <a href="https://docs.adonisjs.com"><strong>📖 AdonisJS Docs</strong></a>
-      <br>
-      <span>Complete guide to AdonisJS</span>
-    </td>
-    <td>
-      <a href="https://tuyau.dev"><strong>🔒 Tuyau</strong></a>
-      <br>
-      <span>Type-safe API calls</span>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <a href="https://lucid.adonisjs.com"><strong>💾 Lucid ORM</strong></a>
-      <br>
-      <span>Database queries and relationships</span>
-    </td>
-    <td>
-      <a href="https://vinejs.dev"><strong>✅ VineJS</strong></a>
-      <br>
-      <span>Schema validation guide</span>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <a href="https://docs.adonisjs.com/guides/authentication/introduction"><strong>🔐 Authentication Guide</strong></a>
-      <br>
-      <span>Sessions and access tokens in AdonisJS</span>
-    </td>
-    <td>
-      <a href="https://docs.adonisjs.com/guides/security/cors"><strong>🌐 CORS Guide</strong></a>
-      <br>
-      <span>Configure CORS for your API</span>
-    </td>
-  </tr>
-</table>
-
----
-
-## 🎨 Philosophy
-
-This starter kit embraces the **API-first** approach to web development:
-
-- **Framework Agnostic** - Use any frontend framework (React, Vue, Svelte, Angular, etc.)
-- **Type Safety Everywhere** - TypeScript across the stack with Tuyau for type-safe API calls
-- **Dual Authentication** - API tokens for cross-origin and sessions for same-domain apps
-- **Convention Over Configuration** - Sensible defaults, escape hatches when you need them
-- **Developer Experience** - Hot reload, great error messages, instant feedback
-- **Production Ready** - Security, validation, and testing built-in
-
-### Authentication Strategies
-
-This starter kit provides both authentication strategies:
-
-- **API Tokens (Default)** - Use when your API and frontend are on different domains. Stateless and perfect for mobile apps, SPAs, and third-party integrations.
-- **Session-based** - Use when your API and frontend share the same top-level domain. Traditional cookie-based authentication with CSRF protection.
-
-You can easily switch between strategies by changing the guard in your middleware configuration.
-
----
-
-## 🤝 Contributing
-
-This starter kit is maintained by the AdonisJS team. Found a bug or have a suggestion? [Open an issue](https://github.com/adonisjs/api-starter-kit/issues) or submit a pull request!
-
----
-
-## 📄 License
-
-This starter kit is open-sourced software licensed under the [MIT license](LICENSE).
-
----
-
-<div align="center">
-  <sub>Built with ❤️ by the AdonisJS team</sub>
-</div>
+#### Implement update routes
+#### Implement charge back route
+#### Implement openapi
+#### Implement idempotence
+#### Check for business rules
