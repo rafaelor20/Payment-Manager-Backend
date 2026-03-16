@@ -15,9 +15,7 @@ export default class GatewayTwoService implements PaymentGatewayContract {
   }
 
   public async processPayment(details: PaymentDetails): Promise<PaymentResult> {
-    console.log('Details 2:', details)
     try {
-      console.log('Processing payment with Gateway 2:', details)
       const response = await fetch(`${env.get('GATEWAY_URL_2')}/transacoes`, {
         method: 'POST',
         headers: {
@@ -28,7 +26,6 @@ export default class GatewayTwoService implements PaymentGatewayContract {
         body: JSON.stringify(details),
       })
 
-      console.log('Gateway 2 Response Status:', response)
       const result = (await response.json()) as any
       return { id: result.id }
     } catch (error) {

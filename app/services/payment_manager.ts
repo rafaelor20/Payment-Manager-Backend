@@ -63,7 +63,6 @@ class PaymentManager {
           })
         }
 
-        console.log(`gatewayResponse from ${gateway.name}:`, result)
         if (result && result.id) {
           gatewayResponse = {
             externalId: result.id,
