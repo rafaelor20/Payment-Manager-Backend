@@ -187,6 +187,10 @@ npm start
 
 ```
 
+### Postman Collection
+
+#### use the "payment manager backend.postman_collection.json" to easily create a transaction
+
 ### To do
 
 #### Implement update routes for users, products and clients
