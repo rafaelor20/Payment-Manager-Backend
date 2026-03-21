@@ -6,3 +6,10 @@ export const createProductValidator = vine.compile(
     amount: vine.number().positive(),
   })
 )
+
+export const updateProductValidator = vine.compile(
+  vine.object({
+    name: vine.string().trim().minLength(3).optional(),
+    amount: vine.number().positive().optional(),
+  })
+)

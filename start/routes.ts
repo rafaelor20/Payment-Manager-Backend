@@ -50,6 +50,9 @@ router
         router
           .post('/', [controllers.Products, 'store'])
           .use([middleware.auth(), middleware.role(['ADMIN', 'MANAGER', 'FINANCE'])])
+        router
+          .put('/:id', [controllers.Products, 'update'])
+          .use([middleware.auth(), middleware.role(['ADMIN', 'MANAGER', 'FINANCE'])])
       })
       .prefix('products')
       .as('products')

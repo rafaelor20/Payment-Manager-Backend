@@ -106,6 +106,90 @@ test.group('Create a Product', (group) => {
 
     response.assertStatus(401)
   })
+
+  test('should return 200 when an admin user updates a product', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const product = await Product.create({
+      name: 'Test Product',
+      amount: 1000,
+    })
+
+    const response = await client
+      .put(`/api/v1/products/${product.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Product',
+        amount: 2000,
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().message, 'Product updated successfully')
+    assert.equal(response.body().data.name, 'Updated Product')
+    assert.equal(response.body().data.amount, 2000)
+  })
+
+  test('should return 200 when a manager user updates a product', async ({ client, assert }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const product = await Product.create({
+      name: 'Test Product',
+      amount: 1000,
+    })
+
+    const response = await client
+      .put(`/api/v1/products/${product.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Product',
+        amount: 2000,
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().message, 'Product updated successfully')
+    assert.equal(response.body().data.name, 'Updated Product')
+    assert.equal(response.body().data.amount, 2000)
+  })
+
+  test('Should not allow a common user to update a product', async ({ client }) => {
+    const user = await User.create({
+      fullName: 'fincance User',
+      email: 'finance@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(user)
+
+    const product = await Product.create({
+      name: 'Test Product',
+      amount: 1000,
+    })
+
+    const response = await client
+      .put(`/api/v1/products/${product.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Product',
+        amount: 2000,
+      })
+
+    response.assertStatus(403)
+  })
 })
 
 test.group('List Products', (group) => {
