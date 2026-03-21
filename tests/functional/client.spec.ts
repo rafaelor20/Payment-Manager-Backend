@@ -308,3 +308,108 @@ test.group('ADMIN or MANAGER get a client by id and all his transactions', (grou
     response.assertStatus(401)
   })
 })
+
+test.group('ADMIN or MANAGER update a client', (group) => {
+  group.each.setup(async () => {
+    await User.query().delete()
+    await Client.query().delete()
+  })
+
+  test('should return 200 when an admin user updates a client', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const response = await client
+      .put(`/api/v1/clients/${client1.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Client',
+        email: 'updated@example.com',
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().message, 'Client updated successfully')
+    assert.equal(response.body().data.name, 'Updated Client')
+    assert.equal(response.body().data.email, 'updated@example.com')
+  })
+
+  test('should return 200 when an manager user updates a client', async ({ client, assert }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const response = await client
+      .put(`/api/v1/clients/${client1.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Client',
+        email: 'updated@example.com',
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().message, 'Client updated successfully')
+    assert.equal(response.body().data.name, 'Updated Client')
+    assert.equal(response.body().data.email, 'updated@example.com')
+  })
+
+  test('should return 403 when an common user updates a client', async ({ client }) => {
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(user)
+
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const response = await client
+      .put(`/api/v1/clients/${client1.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        name: 'Updated Client',
+        email: 'updated@example.com',
+      })
+
+    response.assertStatus(403)
+  })
+
+  test('should return 401 when an unauthenticated', async ({ client }) => {
+    const client1 = await Client.create({
+      name: 'Client 1',
+      email: 'client1@example.com',
+    })
+
+    const response = await client.put(`/api/v1/clients/${client1.id}`).json({
+      name: 'Updated Client',
+      email: 'updated@example.com',
+    })
+
+    response.assertStatus(401)
+  })
+})

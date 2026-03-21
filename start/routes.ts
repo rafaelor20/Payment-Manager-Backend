@@ -70,6 +70,7 @@ router
       .group(() => {
         router.get('/', [controllers.Clients, 'index'])
         router.get('/:id', [controllers.Clients, 'show'])
+        router.put('/:id', [controllers.Clients, 'update'])
       })
       .prefix('clients')
       .as('clients')

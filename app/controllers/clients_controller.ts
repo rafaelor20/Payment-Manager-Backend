@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Client from '#models/client'
+import { updateClientValidator } from '#validators/client'
 
 export default class ClientsController {
   async index({ response }: HttpContext) {
@@ -20,5 +21,13 @@ export default class ClientsController {
     }
 
     return response.ok({ data: client })
+  }
+
+  async update({ request, response, params }: HttpContext) {
+    const payload = await request.validateUsing(updateClientValidator)
+    const client = await Client.findOrFail(params.id)
+    client.merge(payload)
+    await client.save()
+    return response.ok({ message: 'Client updated successfully', data: client })
   }
 }
