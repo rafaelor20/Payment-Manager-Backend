@@ -13,6 +13,11 @@ export interface PaymentResult {
   id: string
 }
 
+export interface ChargeBackResult {
+  id: string
+  result: string
+}
+
 export interface PaymentGatewayContract {
   processPayment(details: PaymentDetails): Promise<PaymentResult>
 }

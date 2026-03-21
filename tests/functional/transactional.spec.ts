@@ -560,3 +560,32 @@ test.group('ADMIN or FINANCE get a transaction by id', (group) => {
     response.assertStatus(401)
   })
 })
+
+test.group('ADMIN or FINANCE use charge back', (group) => {
+  let originalProcessPaymentGateway: any
+
+  group.setup(() => {
+    originalProcessPaymentGateway = paymentManager.processPaymentGateway
+    paymentManager.processPaymentGateway = async () => {
+      return gatewayResponseMock()
+    }
+  })
+
+  group.teardown(() => {
+    paymentManager.processPaymentGateway = originalProcessPaymentGateway
+  })
+
+  group.each.setup(async () => {
+    await User.query().delete()
+    await Product.query().delete()
+    await Client.query().delete()
+    await Transaction.query().delete()
+    await Gateway.query().delete()
+
+    await Gateway.create({
+      id: 1,
+      name: 'Test Gateway',
+      isActive: 'true',
+    })
+  })
+})

@@ -3,6 +3,7 @@ import {
   type PaymentGatewayContract,
   type PaymentDetails,
   type PaymentResult,
+  type ChargeBackResult,
 } from '#contracts/payment_gateway'
 
 export default class GatewayOneService implements PaymentGatewayContract {
@@ -65,6 +66,28 @@ export default class GatewayOneService implements PaymentGatewayContract {
 
       const result = (await response.json()) as any
       return { id: result.id }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public async chargeBack(transactionId: string): Promise<ChargeBackResult> {
+    try {
+      const token = await this.authenticate()
+
+      const response = await fetch(
+        `${env.get('GATEWAY_URL_1')}/transactions/${transactionId}/charge_back`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      )
+
+      const result = (await response.json()) as any
+      return { id: result.id, result: result.status || result.result }
     } catch (error) {
       throw error
     }

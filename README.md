@@ -193,8 +193,6 @@ npm start
 
 ### To do
 
-#### Implement update routes for users, products and clients
-#### Implement charge back route
 #### Implement openapi
 #### Implement idempotence
 #### Check for business rules
