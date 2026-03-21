@@ -26,6 +26,13 @@ export const createUserValidator = vine.create({
   password: password(),
   role: vine.enum(['ADMIN', 'MANAGER', 'FINANCE', 'USER']).optional(),
 })
+
+export const updateUserValidator = vine.create({
+  fullName: vine.string().nullable().optional(),
+  email: email().optional(),
+  role: vine.enum(['ADMIN', 'MANAGER', 'FINANCE', 'USER']).optional(),
+})
+
 /**
  * Validator to use before validating user credentials
  * during login

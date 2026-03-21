@@ -37,6 +37,7 @@ router
     router
       .group(() => {
         router.post('/', [controllers.Users, 'store'])
+        router.put('/:id', [controllers.Users, 'update']).use(middleware.role(['ADMIN', 'MANAGER']))
         router.delete('/:id', [controllers.Users, 'destroy'])
       })
       .prefix('users')

@@ -236,4 +236,99 @@ test.group('Users', (group) => {
 
     response.assertStatus(403)
   })
+
+  test('should allow a admin to update a user', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const response = await client
+      .put(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        fullName: 'Updated User',
+        email: 'updateduser@example.com',
+        role: USER_ROLE.MANAGER,
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().data.fullName, 'Updated User')
+    assert.equal(response.body().data.email, 'updateduser@example.com')
+    assert.equal(response.body().data.role, USER_ROLE.MANAGER)
+  })
+
+  test('should allow a manager to update a user', async ({ client, assert }) => {
+    const manager = await User.create({
+      fullName: 'Manager User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.MANAGER,
+    })
+
+    const token = await User.accessTokens.create(manager)
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@email.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const response = await client
+      .put(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        fullName: 'Updated User',
+        email: 'updateduser@example.com',
+        role: USER_ROLE.FINANCE,
+      })
+
+    response.assertStatus(200)
+    assert.equal(response.body().data.fullName, 'Updated User')
+    assert.equal(response.body().data.email, 'updateduser@example.com')
+    assert.equal(response.body().data.role, USER_ROLE.FINANCE)
+  })
+
+  test('should not allow a non-admin/non-manager user to update to update a user', async ({
+    client,
+  }) => {
+    const finance = await User.create({
+      fullName: 'finance User',
+      email: 'manager@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(finance)
+
+    const user = await User.create({
+      fullName: 'User',
+      email: 'user@email.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const response = await client
+      .put(`/api/v1/users/${user.id}`)
+      .bearerToken(token.value!.release())
+      .json({
+        fullName: 'Updated User',
+        email: 'updateduser@example.com',
+        role: USER_ROLE.FINANCE,
+      })
+
+    response.assertStatus(403)
+  })
 })
