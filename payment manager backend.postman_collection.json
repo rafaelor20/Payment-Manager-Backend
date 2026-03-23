@@ -230,6 +230,62 @@
       ],
       "request": {
         "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "123fdsfeer",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"user@example.com\",\n    \"cardNumber\": \"4111111111111111\",\n    \"cvv\": \"123\",\n    \"products\": [\n        {\n          \"productId\": 1,\n          \"quantity\": 50\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}transactions",
+          "host": [
+            "{{base_url}}transactions"
+          ]
+        },
+        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+      },
+      "response": []
+    },
+    {
+      "name": "Post use chargeBack",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{myToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
@@ -241,9 +297,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}transactions",
+          "raw": "{{base_url}}transactions/1/charge_back",
           "host": [
             "{{base_url}}transactions"
+          ],
+          "path": [
+            "1",
+            "charge_back"
           ]
         },
         "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -349,7 +409,7 @@
     },
     {
       "key": "myToken",
-      "value": "oat_MQ.UkwyNzVZTGR4VGc0dHR4MXdpeXkxTlFUNHRtT0ZTM2o1N2RyWndxRDM4OTAxNDc0MjE"
+      "value": "oat_MQ.b1ZqR2FncXN5aXNoZVIwclRlV3cwYmJwNGdVOHRyR01tWUdOUlBTeTEzNzA4NzE3NA"
     }
   ]
 }
