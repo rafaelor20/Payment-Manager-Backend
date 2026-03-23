@@ -99,4 +99,23 @@ export default class TransactionsController {
 
     return response.created({ data: new TransactionResource(transaction).toObject() })
   }
+
+  async chargeBack({ response, params }: HttpContext) {
+    const transaction = await Transaction.findOrFail(params.id)
+
+    if (!transaction) {
+      return response.notFound({ message: 'Transaction not found' })
+    }
+
+    if (transaction.status !== 'approved') {
+      return response.badRequest({ message: 'Transaction is not approved' })
+    }
+
+    const result = await paymentManager.chargeBackGateway({
+      gatewayId: transaction.gatewayId,
+      externalId: transaction.externalId,
+    })
+
+    return result
+  }
 }

@@ -80,6 +80,14 @@ class PaymentManager {
       return { status: 'failed', errorMessage: 'All gateways failed to process the payment' }
     }
   }
+
+  public async chargeBackGateway(transaction: { gatewayId: any; externalId: string }) {
+    const gatewayId = transaction.gatewayId
+    const gateway = await Gateway.findOrFail(gatewayId)
+    const driver = this.driver(gateway.name as any)
+    const result = await driver.chargeBack(transaction.externalId)
+    return result
+  }
 }
 
 export default new PaymentManager()

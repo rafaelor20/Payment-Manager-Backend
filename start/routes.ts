@@ -85,6 +85,9 @@ router
         router
           .get('/', [controllers.Transactions, 'index'])
           .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
+        router
+          .post('/:id/charge_back', [controllers.Transactions, 'chargeBack'])
+          .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])
       })
       .prefix('transactions')
       .as('transactions')

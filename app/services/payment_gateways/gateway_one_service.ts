@@ -10,9 +10,6 @@ export default class GatewayOneService implements PaymentGatewayContract {
   private bearerToken: string | null = null
   private tokenExpiresAt: Date | null = null
 
-  /**
-   * Handles the login and caching of the token
-   */
   private async authenticate(): Promise<string> {
     // If we have a valid unexpired token, reuse it
     if (this.bearerToken && this.tokenExpiresAt && this.tokenExpiresAt > new Date()) {

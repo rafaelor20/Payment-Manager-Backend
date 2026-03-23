@@ -20,4 +20,5 @@ export interface ChargeBackResult {
 
 export interface PaymentGatewayContract {
   processPayment(details: PaymentDetails): Promise<PaymentResult>
+  chargeBack(transactionId: string): Promise<ChargeBackResult>
 }
