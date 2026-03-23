@@ -7,6 +7,7 @@ import Transaction from '#models/transaction'
 import Gateway from '#models/gateway'
 import paymentManager from '#services/payment_manager'
 import { gatewayResponseMock } from '../gateway_response_mock.js'
+import { gatewayChargeBackResponseMock } from '../gateway_charge_back_mock.js'
 
 test.group('Create a Transaction', (group) => {
   let originalProcessPaymentGateway: any
@@ -569,6 +570,13 @@ test.group('ADMIN or FINANCE use charge back', (group) => {
     paymentManager.processPaymentGateway = async () => {
       return gatewayResponseMock()
     }
+    paymentManager.chargeBackGateway = async () => {
+      const mock = gatewayChargeBackResponseMock()
+      return {
+        id: mock.id,
+        result: mock.status,
+      }
+    }
   })
 
   group.teardown(() => {
@@ -587,5 +595,172 @@ test.group('ADMIN or FINANCE use charge back', (group) => {
       name: 'Test Gateway',
       isActive: 'true',
     })
+  })
+
+  test('Finance user can use charge back', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Test Admin',
+      email: 'test@example.com',
+      password: 'password',
+      role: USER_ROLE.ADMIN,
+    })
+
+    const token = await User.accessTokens.create(admin)
+
+    await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const ProductsResponse = await client
+      .get('/api/v1/products')
+      .bearerToken(token.value!.release())
+
+    const products = ProductsResponse.body().data
+    const product1 = products.find((p: any) => p.name === 'Test Product 1')
+    const product2 = products.find((p: any) => p.name === 'Test Product 2')
+
+    const transactionExample = {
+      name: 'Test User',
+      email: 'user@example.com',
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 2,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 1,
+        },
+      ],
+    }
+
+    await client.post('/api/v1/transactions').json(transactionExample)
+    const transaction = await Transaction.first()
+
+    const response = await client
+      .post(`/api/v1/transactions/${transaction!.id}/charge_back`)
+      .bearerToken(token.value!.release())
+
+    assert.equal(response.status(), 200)
+    assert.equal(response.body().result, 'charged_back')
+  })
+
+  test('Finance user can use charge back', async ({ client, assert }) => {
+    const finance = await User.create({
+      fullName: 'Test Admin',
+      email: 'test@example.com',
+      password: 'password',
+      role: USER_ROLE.FINANCE,
+    })
+
+    const token = await User.accessTokens.create(finance)
+
+    await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const ProductsResponse = await client
+      .get('/api/v1/products')
+      .bearerToken(token.value!.release())
+
+    const products = ProductsResponse.body().data
+    const product1 = products.find((p: any) => p.name === 'Test Product 1')
+    const product2 = products.find((p: any) => p.name === 'Test Product 2')
+
+    const transactionExample = {
+      name: 'Test User',
+      email: 'user@example.com',
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 2,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 1,
+        },
+      ],
+    }
+
+    await client.post('/api/v1/transactions').json(transactionExample)
+    const transaction = await Transaction.first()
+
+    const response = await client
+      .post(`/api/v1/transactions/${transaction!.id}/charge_back`)
+      .bearerToken(token.value!.release())
+
+    assert.equal(response.status(), 200)
+    assert.equal(response.body().result, 'charged_back')
+  })
+
+  test('Common user cannot use charge back', async ({ client, assert }) => {
+    const user = await User.create({
+      fullName: 'Test Admin',
+      email: 'test@example.com',
+      password: 'password',
+      role: USER_ROLE.USER,
+    })
+
+    const token = await User.accessTokens.create(user)
+
+    await Product.create({
+      name: 'Test Product 1',
+      amount: 1000,
+    })
+
+    await Product.create({
+      name: 'Test Product 2',
+      amount: 2000,
+    })
+
+    const ProductsResponse = await client
+      .get('/api/v1/products')
+      .bearerToken(token.value!.release())
+
+    const products = ProductsResponse.body().data
+    const product1 = products.find((p: any) => p.name === 'Test Product 1')
+    const product2 = products.find((p: any) => p.name === 'Test Product 2')
+
+    const transactionExample = {
+      name: 'Test User',
+      email: 'user@example.com',
+      cardNumber: '4111111111111111',
+      cvv: '123',
+      products: [
+        {
+          productId: Number(product1.id),
+          quantity: 2,
+        },
+        {
+          productId: Number(product2.id),
+          quantity: 1,
+        },
+      ],
+    }
+
+    await client.post('/api/v1/transactions').json(transactionExample)
+    const transaction = await Transaction.first()
+
+    const response = await client
+      .post(`/api/v1/transactions/${transaction!.id}/charge_back`)
+      .bearerToken(token.value!.release())
+
+    assert.equal(response.status(), 403)
   })
 })

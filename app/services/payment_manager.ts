@@ -2,6 +2,7 @@ import { type PaymentGatewayContract, type PaymentResult } from '#contracts/paym
 import GatewayOneService from '#services/payment_gateways/gateway_one_service'
 import GatewayTwoService from '#services/payment_gateways/gateway_two_service'
 import Gateway from '#models/gateway'
+import Transaction from '#models/transaction'
 
 export type AvailableGateways = 'GATEWAY_1' | 'GATEWAY_2'
 
@@ -86,6 +87,12 @@ class PaymentManager {
     const gateway = await Gateway.findOrFail(gatewayId)
     const driver = this.driver(gateway.name as any)
     const result = await driver.chargeBack(transaction.externalId)
+
+    if (result.result === 'charged_back') {
+      const transactionModel = await Transaction.findByOrFail('externalId', transaction.externalId)
+      await transactionModel.merge({ status: 'charged_back' }).save()
+    }
+
     return result
   }
 }
