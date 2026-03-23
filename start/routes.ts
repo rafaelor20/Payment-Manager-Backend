@@ -78,7 +78,7 @@ router
 
     router
       .group(() => {
-        router.post('/', [controllers.Transactions, 'store'])
+        router.post('/', [controllers.Transactions, 'store']).use(middleware.idempotency())
         router
           .get('/:id', [controllers.Transactions, 'show'])
           .use([middleware.auth(), middleware.role(['ADMIN', 'FINANCE'])])

@@ -8,6 +8,7 @@ import Gateway from '#models/gateway'
 import paymentManager from '#services/payment_manager'
 import { gatewayResponseMock } from '../gateway_response_mock.js'
 import { gatewayChargeBackResponseMock } from '../gateway_charge_back_mock.js'
+import crypto from 'node:crypto'
 
 test.group('Create a Transaction', (group) => {
   let originalProcessPaymentGateway: any
@@ -85,7 +86,10 @@ test.group('Create a Transaction', (group) => {
       ],
     }
 
-    const response = await client.post('/api/v1/transactions').json(transactionExample)
+    const response = await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample)
     const transaction = await Transaction.first()
 
     response.assertStatus(201)
@@ -172,7 +176,10 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample1)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const transactionExample2 = {
       name: 'Client 2',
@@ -191,7 +198,10 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample2)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample2)
 
     const response = await client.get('/api/v1/transactions').bearerToken(token.value!.release())
 
@@ -249,7 +259,10 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample1)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const transactionExample2 = {
       name: 'Test User',
@@ -268,7 +281,10 @@ test.group('ADMIN or FINANCE user can get all transactions', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample2)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample2)
 
     const response = await client.get('/api/v1/transactions').bearerToken(token.value!.release())
 
@@ -375,7 +391,10 @@ test.group('ADMIN or FINANCE get a transaction by id', (group) => {
       ],
     }
 
-    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+    const transaction = await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const response = await client
       .get(`/api/v1/transactions/${transaction.body().data.id}`)
@@ -435,7 +454,10 @@ test.group('ADMIN or FINANCE get a transaction by id', (group) => {
       ],
     }
 
-    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+    const transaction = await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const response = await client
       .get(`/api/v1/transactions/${transaction.body().data.id}`)
@@ -492,7 +514,10 @@ test.group('ADMIN or FINANCE get a transaction by id', (group) => {
       ],
     }
 
-    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+    const transaction = await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const user = await User.create({
       fullName: 'Regular User',
@@ -554,7 +579,10 @@ test.group('ADMIN or FINANCE get a transaction by id', (group) => {
       ],
     }
 
-    const transaction = await client.post('/api/v1/transactions').json(transactionExample1)
+    const transaction = await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const response = await client.get(`/api/v1/transactions/${transaction.body().data.id}`)
 
@@ -642,7 +670,10 @@ test.group('ADMIN or FINANCE use charge back', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample)
     const transaction = await Transaction.first()
 
     const response = await client
@@ -698,7 +729,10 @@ test.group('ADMIN or FINANCE use charge back', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample)
     const transaction = await Transaction.first()
 
     const response = await client
@@ -754,7 +788,10 @@ test.group('ADMIN or FINANCE use charge back', (group) => {
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample)
     const transaction = await Transaction.first()
 
     const response = await client

@@ -191,8 +191,3 @@ npm start
 
 #### use the "payment manager backend.postman_collection.json" to easily create a transaction
 
-### To do
-
-#### Implement openapi
-#### Implement idempotence
-#### Check for business rules

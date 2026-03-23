@@ -7,6 +7,7 @@ import Gateway from '#models/gateway'
 import Transaction from '#models/transaction'
 import { gatewayResponseMock } from '../gateway_response_mock.js'
 import paymentManager from '#services/payment_manager'
+import crypto from 'node:crypto'
 
 test.group('ADMIN or MANAGER get list of clients', (group) => {
   group.each.setup(async () => {
@@ -203,7 +204,10 @@ test.group('ADMIN or MANAGER get a client by id and all his transactions', (grou
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample1)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const response = await client
       .get(`/api/v1/clients/${client1.id}`)
@@ -262,7 +266,10 @@ test.group('ADMIN or MANAGER get a client by id and all his transactions', (grou
       ],
     }
 
-    await client.post('/api/v1/transactions').json(transactionExample1)
+    await client
+      .post('/api/v1/transactions')
+      .header('Idempotency-Key', crypto.randomUUID())
+      .json(transactionExample1)
 
     const response = await client
       .get(`/api/v1/clients/${client1.id}`)
